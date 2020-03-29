@@ -1,0 +1,21 @@
+install: true
+configure: true
+
+install_type: docker-compose
+install_dir: /appli/traefik
+
+docker_image: traefik:v2.1.3
+docker_networks:
+  - ansible-test
+docker_ports:
+  - "80:80"
+  - "443:443"
+
+https: false
+letsencrypt_certificate: false
+
+domain: ansible-test.local
+secure_traefik_ihm: true
+secure_traefik_ihm_user: test:$apr1$em61wpi5$PznWp8XHqQ2gR12Gw9Nxz/
+
+admin_mail: admin@{{ domain }}

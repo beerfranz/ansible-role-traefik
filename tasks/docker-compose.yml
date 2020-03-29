@@ -1,0 +1,25 @@
+---
+- name: Create install directory
+  become: true
+  file:
+    path: "{{ install_dir }}"
+    state: directory
+
+- name: Install docker-compose
+  become: true
+  template:
+    src: "docker-compose.yml"
+    dest: "{{ install_dir }}/docker-compose.yml"
+    mode: '0644'
+
+- name: Create docker networks
+  become: true
+  docker_network:
+    name: "{{ item }}"
+  with_items: "{{ docker_networks }}"
+
+- name: Run `docker-compose up`
+  become: true
+  docker_compose:
+    project_src: "{{ install_dir }}"
+    build: no

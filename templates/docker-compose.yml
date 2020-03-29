@@ -1,0 +1,65 @@
+version: '3'
+
+services:
+  traefik:
+    image: {{ docker_image }}
+    restart: always
+
+    {% if docker_ports %}
+
+    ports:
+      {% for port in docker_ports -%}
+      - "{{ port }}"
+      {% endfor %}
+    {% endif %}
+
+    volumes:
+      - ./cfg/traefik/file_provider:/etc/traefik/file_provider
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/traefik-certificates:/var/certificates
+    labels:
+      - traefik.http.middlewares.force_https.redirectscheme.scheme=https
+      - traefik.http.routers.traefik.rule=Host(`traefik.{{ domain }}`)
+      - traefik.http.routers.traefik.service=api@internal
+      {% if secure_traefik_ihm -%}
+      - traefik.http.middlewares.admin.basicauth.users={{ secure_traefik_ihm_user | regex_replace('\$', '$$') }}
+      - traefik.http.routers.traefik.middlewares=admin
+      {%- endif %}
+      {% if https -%}
+      - traefik.http.routers.traefik-unsecure.rule=Host(`traefik.{{ domain }}`)
+      - traefik.http.routers.traefik-unsecure.middlewares=force_https
+      - traefik.http.routers.traefik.tls=true
+      {% if letsencrypt_certificate -%}
+      - traefik.http.routers.traefik.tls.certresolver=le
+      {%- endif -%}
+      {%- endif %}
+      
+    networks:
+      {% for network in docker_networks -%}
+      - {{ network }}
+      {% endfor %}
+
+    command:
+      - --api
+      - --ping=true
+      - --providers.docker=true
+      - --providers.file.directory=/etc/traefik/file_provider
+      - --accesslog=true
+      - --metrics.prometheus=true
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      {% if letsencrypt_certificate -%}
+      - --certificatesResolvers.le.acme.email={{ admin_mail }}
+      - --certificatesResolvers.le.acme.storage=/var/certificates/acme.json
+      - --certificatesResolvers.le.acme.httpChallenge.entryPoint=web
+      # - --certificatesResolvers.le.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      {% endif %}
+
+    healthcheck:
+      test: traefik healthcheck --ping
+
+networks:
+  {% for network in docker_networks -%}
+  {{ network }}:
+    external: true
+  {% endfor %}

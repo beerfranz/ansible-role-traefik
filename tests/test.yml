@@ -1,0 +1,51 @@
+---
+- hosts: all
+  roles:
+    - role: ../ansible-role-traefik/
+      vars:
+        install_dir: /ansible-test/traefik
+
+  pre_tasks:
+    - name: Add traefik host in /etc/hosts
+      become: true
+      lineinfile:
+        path: /etc/hosts
+        regexp: "traefik.{{ domain }}"
+        line: "127.0.0.1  traefik.{{ domain }}"
+
+  tasks:
+
+    - name: Wait for container is healthy
+      become: true
+      shell:
+        chdir: "{{ install_dir }}"
+        cmd: docker-compose ps traefik | grep "(healthy)"
+      register: cmd_res
+      retries: 20
+      delay: 15
+      until: cmd_res.rc == 0
+
+    - name: Test traefik IHM return HTTP code 401 Unauthorized
+      uri:
+        url: "http://traefik.{{ domain }}"
+        status_code: 401
+    #   ignore_errors: yes
+    #   register: result
+
+    # - name: Assert response is HTTP 401 Unauthorized
+    #   assert:
+    #     that:
+    #       - result.status == 401
+
+    - name: Test traefik IHM return HTTP code 200 when username/password is send
+      uri:
+        url: "http://traefik.{{ domain }}"
+        url_username: test
+        url_password: test
+
+  post_tasks:
+    - name: Stop traefik
+      become: true
+      docker_compose:
+        project_src: "{{ install_dir }}"
+        state: absent
