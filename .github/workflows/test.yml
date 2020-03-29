@@ -25,15 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible==2.9.2 requests docker docker-compose
 
-      - name: Debug
-        run: |
-          which python
-          python --version
-          pip --version
-          which docker
-          docker --version
-          docker-compose --version
-
       - name: Run test
         run: |
           ansible-playbook -i tests/hosts tests/test.yml --limit github_action
