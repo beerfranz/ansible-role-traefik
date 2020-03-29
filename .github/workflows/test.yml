@@ -1,0 +1,39 @@
+---
+name: Test playbook
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test playbook
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible==2.9.2 requests docker docker-compose
+
+      - name: Debug
+        run: |
+          which python
+          python --version
+          pip --version
+          which docker
+          docker --version
+          docker-compose --version
+
+      - name: Run test
+        run: |
+          ansible-playbook -i tests/hosts tests/test.yml --limit github_action
