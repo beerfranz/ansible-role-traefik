@@ -21,7 +21,7 @@ services:
       - traefik.http.middlewares.force_https.redirectscheme.scheme=https
       - traefik.http.routers.traefik.rule=Host(`traefik.{{ domain }}`)
       - traefik.http.routers.traefik.service=api@internal
-      - traefik.http.middlewares.admin.basicauth.users={{ traefik_ui_user }}:{{ traefik_ui_passwd | hash('md5) | regex_replace('\$', '$$') }}
+      - traefik.http.middlewares.admin.basicauth.users={{ traefik_ui_user }}:{{ traefik_ui_passwd | hash('md5') | regex_replace('\$', '$$') }}
       - traefik.http.routers.traefik.middlewares=admin
       {% if https -%}
       - traefik.http.routers.traefik-unsecure.rule=Host(`traefik.{{ domain }}`)
