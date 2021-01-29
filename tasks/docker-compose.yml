@@ -10,6 +10,7 @@
     name: passlib
 
 - name: Generate passwd file for traefik
+  become: true
   htpasswd:
     path: "{{ install_dir }}/htpasswd"
     name: "{{ traefik_ui_user }}"
