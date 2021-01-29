@@ -12,7 +12,7 @@
 - name: Generate passwd file for traefik
   become: true
   htpasswd:
-    path: "{{ install_dir }}/htpasswd"
+    path: "{{ install_dir }}/.htpasswd"
     name: "{{ traefik_ui_user }}"
     password: "{{ traefik_ui_passwd }}"
     mode: 0640

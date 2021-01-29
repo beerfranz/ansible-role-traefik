@@ -22,7 +22,7 @@ services:
       - traefik.http.routers.traefik.rule=Host(`traefik.{{ domain }}`)
       - traefik.http.routers.traefik.service=api@internal
       - traefik.http.middlewares.admin.basicauth.users=
-{%- for htpasswd in lookup('file', install_dir + '/htpasswd' ).splitlines() | join(',') %}{{ htpasswd | regex_replace('\$', '$$') }}{% endfor %}
+{%- for htpasswd in lookup('file', install_dir + '/.htpasswd' ).splitlines() | join(',') %}{{ htpasswd | regex_replace('\$', '$$') }}{% endfor %}
 
       - traefik.http.routers.traefik.middlewares=admin
       {% if https -%}
