@@ -5,6 +5,17 @@
     path: "{{ install_dir }}"
     state: directory
 
+- name: Install python lib passlib
+  pip:
+    name: passlib
+
+- name: Generate passwd file for traefik
+  htpasswd:
+    path: "{{ install_dir }}/htpasswd"
+    name: "{{ traefik_ui_user }}"
+    password: "{{ traefik_ui_passwd }}"
+    mode: 0640
+
 - name: Install docker-compose
   become: true
   template:
