@@ -15,7 +15,8 @@ https: false
 letsencrypt_certificate: false
 
 domain: ansible-test.local
-secure_traefik_ihm: true
-secure_traefik_ihm_user: test:$apr1$em61wpi5$PznWp8XHqQ2gR12Gw9Nxz/
+
+traefik_ui_user: test
+traefik_ui_passwd: test
 
 admin_mail: admin@{{ domain }}
